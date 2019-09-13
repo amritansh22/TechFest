@@ -1,0 +1,958 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jan 15 00:26:27 2019
+
+@authors: Amritansh Vajpayee, Raunak Jalan, Namit Saxna
+"""
+
+import tkinter as tk                # python 3
+from tkinter import font  as tkfont # python 3
+from tkinter import messagebox
+import time
+import sys
+
+
+teamList = ["1234","2345","3456","4567","5678"]
+mainDict = {'1234':['This is some hint for level 1','12','This is some hint for room no 1','107','This is some hint for level 2','25','This is some hint for room 2','207','This is some hint for level 4','48','This is some hint for room 4','407'],'2345':['84','845','21','548','15','4848','48']}
+team_flag = {'1234':['0854','0261','359',"end"], '2345':['0854','0261','3569',"end"]}
+flag_level = 0
+room_no=3
+room_no1 = 3
+room_no2 = 7
+room_no2 = 11
+level_no = 1
+teamID = ""
+attempts = 8
+disq = 0
+
+class SampleApp(tk.Tk):
+
+    def __init__(self, *args, **kwargs):
+        global teamID
+        tk.Tk.__init__(self, *args, **kwargs)
+
+        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+
+        # the container is where we'll stack a bunch of frames
+        # on top of each other, then the one we want visible
+        # will be raised above the others
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+        for F in (StartPage,Level1,Level2,Level3,Level4,Level5,Level6,Level7,enter,endGame,FinalWindow):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+            
+
+         
+            # put all of the pages in the same location;
+            # the one on the top of the stacking order
+            # will be the one that is visible.
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame("StartPage")
+
+    def show_frame(self, page_name):
+        '''Show a frame for the given page name'''
+        global teamID
+        frame = self.frames[page_name]
+        frame.tkraise()
+
+pinLevel = ""
+class StartPage(tk.Frame):
+
+
+    def __callback(self):
+        return
+        
+            
+    def __init__(self, parent, controller):
+        global teamID,attempts,level_no,room_no,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.controller.iconbitmap(r'Zerode-Plump-Document-scheduled-tasks.ico')
+        #self.controller.protocol("WM_DELETE_WINDOW", self.__callback)
+        self.controller.title('TechEvent Round-2')
+        
+        #C = tk.Canvas(self, bg="blue", height=20, width=20)
+        #self.filename = PhotoImage(file = "D:\\study material\\Python\\prog\\Projects\\technical treasure hunt\\chandigarhLogo.png")
+        #background_label = tk.Label(self, image=self.filename)
+        #background_label.config(bg='black')
+        #background_label.pack(side = TOP,pady=10)
+
+        
+        label = tk.Label(self, text="Welcome to the Treasure Hunt Team:{}\n".format(teamID), font=("Sans-serif", 35, 'bold'))
+        label.pack(fill="x", pady=5)
+
+        self.level_clues = StringVar()
+        self.level_clues.set(mainDict[teamID][level_no-1])
+
+        print(level_no,room_no)
+        labelEnterTeamID = tk.Label(self, height=1,width=30, textvariable = self.level_clues, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42, 'bold'))
+        labelEnterTeamID.config(background='black', fg='white')
+        labelEnterTeamID.pack()
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        
+        
+        
+        textBoxPin = tk.Entry(self,justify='center', width = 10, font= "Helvetica 20 bold")
+        textBoxPin.pack(padx=150,ipady=10, pady = 20)
+        textBoxPin.config(width=50)
+        textBoxPin.focus()
+        textBoxPin.bind('<Return>',lambda x: self.extractPin(textBoxPin,attemptBox1))
+        
+        button = tk.Button(self, text="Go", height = 3,width = 15, command=lambda:self.extractPin(textBoxPin,attemptBox1), font=("Courier", 20,'bold'), bg='pale green')
+        
+        button.pack(pady = 10)
+
+        attemptBox1.pack(padx=10, pady=20)
+
+
+        
+      
+    def extractPin(self,textBoxPin,attemptBox1):
+        global teamID,attempts,level_no,disq,mainDict
+        
+     #someList = ["123","845"]   
+        p =''
+        pinLevel = textBoxPin.get()
+
+        print(level_no)
+
+        if attempts>0:
+            
+            if len(pinLevel) == 0:
+
+                messagebox.showinfo("ERROR!!", "Please Enter Your Answer!!")
+                self.controller.show_frame("StartPage")
+                
+            
+            else:
+                if(mainDict[teamID][level_no] == pinLevel):
+                    
+                    p = pinLevel[0]
+
+                    level_no = level_no+4
+                    
+                    if level_no>12:
+                        level_no = 1
+                    
+                    self.level_clues.set(mainDict[teamID][level_no-1])
+                    self.controller.show_frame("StartPage")
+                    
+                    
+
+                else:
+                    messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                    attempts = attempts-1
+                    attemptBox1.config(text="No of attempts left {}".format(attempts))
+                    attemptBox1.update_idletasks()
+                    self.controller.show_frame("StartPage")
+                    
+                
+            if(p=='1'):
+                self.controller.show_frame("Level1")
+            elif(p=='2'):
+                self.controller.show_frame("Level2")
+            elif(p=='3'):
+                self.controller.show_frame("Level3")
+            elif(p=='4'):
+                self.controller.show_frame("Level4")
+            elif(p=='5'):
+               self.controller.show_frame("Level5")
+            elif(p=='6'):
+                self.controller.show_frame("Level6")
+            elif(p=='7'):    
+                self.controller.show_frame("Level7")
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+
+      
+           
+
+
+from tkinter import *
+
+
+class Level1(tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        self.attempts = attempts
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(self.attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="104",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="105",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="106",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="107",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="108",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="109",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="110",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="111",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][room_no-1])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+        
+        
+        
+       
+
+class Level2(tk.Frame):
+
+    def __init__(self, parent, controller):
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="204",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="205",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="206",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="207",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="208",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="209",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="210",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="211",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][6])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+        
+                 
+        
+class Level3(tk.Frame):
+
+    def __init__(self, parent, controller):
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="304",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="305",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="306",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="307",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="308",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="309",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="310",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="311",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][room_no-1])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+        
+
+
+
+class Level4(tk.Frame):
+
+    def __init__(self, parent, controller):
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="404",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="405",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="406",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="407",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="408",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="409",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="410",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="411",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][10])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+        
+
+
+class Level5(tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="504",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="505",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="506",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="507",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="508",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="509",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="510",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="511",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][room_no-1])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+            
+
+
+
+
+class Level6(tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="704",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="705",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="706",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="707",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="708",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="709",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="710",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="711",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][room_no-1])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+                
+    
+class Level7(tk.Frame):
+
+    def __init__(self, parent, controller):
+
+        global teamID,room_no,attempts,mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Floor Plan of Level 1 ", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        attemptBox1 = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox1.config(font=("Sans-serif", 12))
+        attemptBox1.pack(side = BOTTOM, padx=10, pady=10)
+        
+        button1 = tk.Button(self, text="704",command=lambda: self.check_button(button1,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button2 = tk.Button(self, text="705",command=lambda: self.check_button(button2,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button3 = tk.Button(self, text="706",command=lambda: self.check_button(button3,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button4 = tk.Button(self, text="707",command=lambda: self.check_button(button4,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button5 = tk.Button(self, text="708",command=lambda: self.check_button(button5,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button6 = tk.Button(self, text="709",command=lambda: self.check_button(button6,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button7 = tk.Button(self, text="710",command=lambda: self.check_button(button7,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+        button8 = tk.Button(self, text="711",command=lambda: self.check_button(button8,attemptBox1), height = 4, width = 15,fg = 'white',bg = 'red')
+
+        self.room_clue = StringVar()
+        self.room_clue.set(mainDict[teamID][room_no-1])
+
+        labelEnterTeamID = tk.Label(self, height=2,width=30,textvariable = self.room_clue, borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42))
+        labelEnterTeamID.pack()
+        
+        
+        
+        button1.pack(side=LEFT,padx=35,pady=20)
+        button2.pack(side=LEFT,padx=35,pady=20)
+        button3.pack(side=LEFT,padx=35,pady=20) 
+        button4.pack(side=LEFT,padx=35,pady=20)
+        button5.pack(side=LEFT,padx=35,pady=20)
+        button6.pack(side=LEFT,padx=35,pady=20)
+        button7.pack(side=LEFT,padx=35,pady=20)
+        button8.pack(side=LEFT,padx=35,pady=20)
+
+        
+
+    def check_button(self, button,attemptBox1):
+        global room_no,attempts, mainDict
+
+        print(room_no)
+
+        if attempts>0:
+            if button["text"] == mainDict[teamID][room_no]:
+                room_no = room_no+4
+                if room_no>12:
+                    room_no = 1
+                self.room_clue.set(mainDict[teamID][room_no-1])
+                self.controller.show_frame("enter")
+            else:
+                messagebox.showinfo("ERROR!!", "Wrong Answer!!")
+                attempts = attempts-1
+                attemptBox1.config(text="No of attempts left {}".format(attempts))
+                attemptBox1.update_idletasks()
+        else:
+            messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+            self.controller.show_frame("endGame")
+            disq = 1
+        
+        
+        
+        
+class endGame(tk.Frame):
+
+    def __init__(self, parent, controller):
+        global abc, teamID, mainDict
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="You are disqualified", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        
+        
+
+
+       
+pin = ""       
+class enter(tk.Frame):
+
+    def __init__(self, parent, controller):
+        global teamID,attempts
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+        #C = tk.Canvas(self, bg="blue", height=20, width=20)
+        #self.filename = PhotoImage(file = "D:\\study material\\Python\\prog\\Projects\\technical treasure hunt\\chandigarhLogo.png")
+        #background_label = tk.Label(self, image=self.filename)
+        #background_label.config(bg='black')
+        #background_label.pack(side = TOP,pady=10)
+        
+        label = tk.Label(self, text="Enter the code on flag", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        
+
+        attemptBox = tk.Label(self, height=2,width=50,text="No of attempts left {}".format(attempts), borderwidth=5, relief="solid")
+        attemptBox.config(font=("Sans-serif", 12))
+        
+        textBoxPin = tk.Entry(self,justify='center')
+        textBoxPin.pack(padx=150,pady=150)
+        textBoxPin.bind('<Return>',lambda x: self.verifyPin(textBoxPin,attemptBox))
+    
+        
+        
+        button = tk.Button(self, text="Go",command=lambda: self.verifyPin(textBoxPin,attemptBox))
+        button.pack()
+
+        attemptBox.pack(padx=10, pady=10)  
+
+
+    def verifyPin(self,textBoxPin,attemptBox):
+        global teamID,team_flag,disq,attempts,flag_level
+        pin = textBoxPin.get()
+        if(pin == team_flag[teamID][flag_level]):
+
+            print(team_flag[teamID][flag_level])
+
+            if team_flag[teamID][flag_level+1] == "end":
+
+                self.controller.show_frame("FinalWindow")
+
+            else:
+
+                flag_level = flag_level+1                
+                self.controller.show_frame("StartPage")
+                
+            
+        else:
+            attempts = attempts-1
+            if(attempts>0):
+                messagebox.showinfo("OOPS!!", "Wrong Answer.\n Attempts remaining = {}".format(attempts))
+                attemptBox.config(text="No of attempts left {}".format(attempts))
+                attemptBox.update_idletasks()
+            else:
+                messagebox.showinfo("Disqualified", "You are Disqualified.\n Attempts remaining = 0")
+                self.controller.show_frame("endGame")
+                disq = 1
+            
+            
+            
+class FinalWindow(tk.Frame):
+
+
+    def __callback(self):
+        return
+        
+            
+    def __init__(self, parent, controller):
+        global teamID,attempts,level_no
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.controller.iconbitmap(r'Zerode-Plump-Document-scheduled-tasks.ico')
+        #self.controller.protocol("WM_DELETE_WINDOW", self.__callback)
+        self.controller.title('TechEvent Round-2')
+
+
+        label_end = tk.Label(self, text="So! You Reached Here: \n", font=("Sans-serif", 22, 'bold'))
+        label_end.pack(fill="x", pady=20)
+        
+        
+        label = tk.Label(self, text="Here is one more question: \n", font=("Sans-serif", 42, 'bold'))
+        label.pack(fill="x", pady=20)
+        
+        labelEnterTeamID = tk.Label(self, height=2,width=30,text="Question!!!", borderwidth=10, relief="solid")
+        labelEnterTeamID.config(font=("Sans-serif", 42, 'bold'))
+        labelEnterTeamID.config(background='black', fg='white')
+        labelEnterTeamID.pack(pady = 10)
+        
+        textBoxPin = tk.Entry(self,justify='center', width = 10, font= "Helvetica 20 bold")
+        textBoxPin.pack(padx=150,ipady=10, pady = 10)
+        textBoxPin.config(width=50)
+        textBoxPin.focus()
+        textBoxPin.bind('<Return>',lambda x: self.check_ans(textBoxPin))
+        
+        button = tk.Button(self, text="Go", height = 4,width = 15, command=lambda:self.check_ans(textBoxPin), font=("Courier", 20,'bold'), bg='pale green')
+        
+        button.pack(pady = 10)
+
+    def check_ans(self,textBoxPin):
+
+        answer = textBoxPin.get()
+        if(answer == "Answer"):           
+            messagebox.showinfo("Winner!!", "HURRAY!! YOU WON.. \n Inform your nearest coordinator \nand show this message.")
+
+        else:
+            messagebox.showinfo("OOPS", "Try Again!!")
+            self.controller.show_frame("FinalWindow")
+                    
+
+
+
+
+
+
+
+"""
+class ffgg(object):
+    def __init__(self, master, **kwargs):
+        self.master=master
+        pad=3
+        self._geom='200x200+0+0'
+        master.geometry("{0}x{1}+0+0".format(
+            master.winfo_screenwidth()-pad, master.winfo_screenheight()-pad))
+        master.bind('<Escape>',self.toggle_geom)            
+    def toggle_geom(self,event):
+        geom=self.master.winfo_geometry()
+        print(geom,self._geom)
+        self.master.geometry(self._geom)
+        self._geom=geom
+    def challengeOne(teamIDPassed):
+     frame.destroy()
+     new_frame1 = tk.Frame(root)
+     new_frame1.pack()
+     textShow = 'Your TEAM ID is: {}'.format(teamIDPassed)
+     labelTeamID = tk.Label(new_frame1,height=2,width=30,text=textShow)
+     labelTeamID.grid(row=1,column=0)
+     labelTeamID.config(font=("Courier", 44))
+     textBoxTeamID = tk.Entry(new_frame1,justify='center')
+
+    def storeTeamID():
+     teamID = textBoxTeamID.get()
+     print("Your team ID is {}".format(teamID))
+     challengeOne(teamID)     
+     
+"""
+
+import tkinter as tk
+
+class FullScreenApp(object):
+    def __init__(self, master, **kwargs):
+        global teamID
+        self.master=master
+        pad=3
+        self._geom='200x200+0+0'
+        master.geometry("{0}x{1}+0+0".format(
+            master.winfo_screenwidth()-pad, master.winfo_screenheight()-pad))
+        master.bind('<Escape>',self.toggle_geom)            
+    def toggle_geom(self,event):
+        global teamID
+        geom=self.master.winfo_geometry()
+        print(geom,self._geom)
+        self.master.geometry(self._geom)
+        self._geom=geom
+
+class HomePage(tk.Frame):
+    
+    def createFrame(self, rootWindow):
+        global teamID
+        frame = tk.Frame(rootWindow)
+        frame.config(background='black')
+        frame.pack()
+        self.createWidgets(frame,rootWindow)
+
+    def createWidgets(self,frame, rootWindow):
+        global teamID
+         #C = tk.Canvas(frame, bg="blue", height=30, width=30)
+         #filename = PhotoImage(file = "D:\\study material\\Python\\prog\\Projects\\technical treasure hunt\\chandigarhLogo.png")
+         #background_label = Label(frame, image=filename)
+         #background_label.config(bg='black')
+         #background_label.grid(row=0, column=0,pady=40)
+
+        labelEnterTeamID = tk.Label(frame, height=2, width=30, text="   Enter your Team ID: ")
+        labelEnterTeamID.config(background='black', fg='white', font=("Courier", 44,'bold'))
+        labelEnterTeamID.grid(row=1, column=0,pady=0)
+
+        textBoxTeamID = tk.Entry(frame, font = "Helvetica 20 bold", justify='center')
+        textBoxTeamID.grid(row=2, column=0, ipady=10)
+        textBoxTeamID.config(width=50)
+        textBoxTeamID.focus()
+        textBoxTeamID.bind('<Return>',lambda x: self.storeTeamID(textBoxTeamID, frame,rootWindow))
+        textBoxTeamID.bind('<Control-h>', lambda y: self.popUpHelp(frame, rootWindow))
+        
+        buttonsFrame = tk.Frame(rootWindow)
+        buttonsFrame.place(relx=16,rely=100)
+        buttonsFrame.pack()
+        buttonsFrame.config(bg='black')
+
+
+        goButton = tk.Button(buttonsFrame,
+                   text="Go!", height = 3, width = 12, font = ("Courier", 20,'bold'),
+                    command=lambda: self.storeTeamID(textBoxTeamID, frame,rootWindow))
+        
+        goButton.grid(row=0, column=0, pady=10, padx = 50)
+        goButton.config(bg='pale green')
+
+        helpButton = tk.Button(buttonsFrame, text="Help!", height = 3, width = 12, font = ("Courier", 20,'bold'), command=lambda: self.popUpHelp(frame, rootWindow))
+        helpButton.grid(row=0,column=1, padx = 20, pady = 10)
+        helpButton.config(bg='red')
+
+        help_info = tk.Label(frame, height=2, width=30, text="   Press Ctrl+H for Help. ")
+        help_info.config(background='black', fg='white', font=("Courier", 44,'bold'))
+        help_info.grid(row=10, column=0, pady = 0)
+
+        rootWindow.mainloop()
+        
+    def challengeOne(self,teamIDPassed,frame, rootWindow):
+        global teamID,disq
+        frame.pack_forget()
+        frame.destroy()
+        rootWindow.destroy()
+        """new_frame1 = tk.Frame(rootWindow)
+        
+        new_frame1.pack()
+        textShow = 'Your TEAM ID is: {}'.format(teamIDPassed)
+        labelTeamID = tk.Label(new_frame1,height=2,width=30,text=textShow)
+        labelTeamID.grid(row=1,column=0)
+        labelTeamID.config(font=("Courier", 44))
+        textBoxTeamID = tk.Entry(new_frame1,justify='center')"""
+        
+        app = SampleApp()
+        apps=FullScreenApp(app)
+        
+
+        
+    def popUpHelp(self, frame, rootWindow):
+        global teamID
+        
+        toplevel = Toplevel()
+        toplevel.geometry("%dx%d%+d%+d" % (250,200, 250, 125))
+        toplevel.title("HELP!!")
+        help_rule = Message(toplevel,text="\tRULES:\n\n     1. Enter your team id.\n\n     2. Press Go! \n\n     3. Don't try to close the application.\n         We are not responsible for\n          your progress loss.")
+        help_rule.focus()
+        help_rule.pack()
+
+        button = Button(toplevel, text="Okay", command=toplevel.destroy, height = 3, width = 10)
+        button.pack(pady = 15)
+
+
+    def storeTeamID(self,textBoxTeamID,frame,rootWindow):
+        global teamID, teamList
+        
+        if len(textBoxTeamID.get()) != 0:
+            teamID = textBoxTeamID.get()
+            if teamID in teamList:
+                self.challengeOne(teamID,frame,rootWindow)
+            else:
+                messagebox.showinfo("ERROR!!", "Enter a Valid ID!!")
+                self.createFrame(rootWindow)
+                
+
+        else:
+            messagebox.showinfo("ERROR!!", "Please Enter id!!")
+            self.createFrame(rootWindow)
+            
+
+    def __callback(self):
+        return
+
+
+    def __init__(self):
+        global teamID
+        rootWindow = tk.Tk()
+        rootWindow.title('TechEvent Round-2')
+        #rootWindow.protocol("WM_DELETE_WINDOW", self.__callback)
+        rootWindow.iconbitmap(r'Zerode-Plump-Document-scheduled-tasks.ico')
+        app=FullScreenApp(rootWindow)
+        rootWindow.config(background='black')
+        self.createFrame(rootWindow)
+    
+createHomePage = HomePage()
+
+
+
+
+#if __name__ == "__main__":
+   
